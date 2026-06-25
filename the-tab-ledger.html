@@ -1,0 +1,1058 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tablero de Deudas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,900&family=DM+Sans:wght@400;500;700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #0d0d0d;
+    --surface: #1a1a1a;
+    --cream: #ededea;
+    --red: #c0392b;
+    --red-bright: #e0463a;
+    --green: #8fd9a8;
+    --gold-dim: #8a8a8a;
+    --line: rgba(237,237,234,0.10);
+  }
+
+  *{ box-sizing: border-box; }
+  html,body{ margin:0; padding:0; background: #0d0d0d; }
+  body{
+    color: var(--cream);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    line-height: 1.5;
+    overflow-x: hidden;
+  }
+
+  /* ---------- Lava lamp background ---------- */
+  .bg-blobs{
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 0;
+    overflow: hidden;
+    pointer-events: none;
+    background: var(--bg);
+  }
+  .blob{
+    position: absolute;
+    filter: blur(60px);
+    opacity: 0.75;
+    will-change: transform, border-radius;
+  }
+  .blob1{
+    width: 65vmin; height: 65vmin;
+    top: -15%; left: -15%;
+    background: radial-gradient(circle, rgba(224,70,58,0.9) 0%, rgba(224,70,58,0) 72%);
+    animation: drift1 26s ease-in-out infinite alternate;
+  }
+  .blob2{
+    width: 55vmin; height: 55vmin;
+    top: 52%; left: 58%;
+    background: radial-gradient(circle, rgba(192,57,43,0.85) 0%, rgba(192,57,43,0) 72%);
+    animation: drift2 32s ease-in-out infinite alternate;
+  }
+  .blob3{
+    width: 48vmin; height: 48vmin;
+    top: 28%; left: -18%;
+    background: radial-gradient(circle, rgba(160,40,35,0.8) 0%, rgba(160,40,35,0) 72%);
+    animation: drift3 29s ease-in-out infinite alternate;
+  }
+  .blob4{
+    width: 58vmin; height: 58vmin;
+    top: -18%; left: 60%;
+    background: radial-gradient(circle, rgba(140,30,28,0.75) 0%, rgba(140,30,28,0) 72%);
+    animation: drift4 35s ease-in-out infinite alternate;
+  }
+  .blob5{
+    width: 42vmin; height: 42vmin;
+    top: 78%; left: 2%;
+    background: radial-gradient(circle, rgba(224,70,58,0.7) 0%, rgba(224,70,58,0) 72%);
+    animation: drift5 24s ease-in-out infinite alternate;
+  }
+
+  @keyframes drift1{
+    0%   { transform: translate(0,0) scale(1); border-radius: 42% 58% 63% 37% / 41% 44% 56% 59%; }
+    25%  { transform: translate(6vw, -16vh) scale(1.12); border-radius: 58% 42% 39% 61% / 55% 60% 40% 45%; }
+    50%  { transform: translate(13vw, 10vh) scale(0.92); border-radius: 50% 50% 65% 35% / 38% 62% 38% 62%; }
+    75%  { transform: translate(3vw, 32vh) scale(1.2); border-radius: 63% 37% 44% 56% / 50% 50% 60% 40%; }
+    100% { transform: translate(-4vw, 22vh) scale(1); border-radius: 45% 55% 50% 50% / 60% 45% 55% 40%; }
+  }
+  @keyframes drift2{
+    0%   { transform: translate(0,0) scale(1); border-radius: 55% 45% 40% 60% / 45% 55% 45% 55%; }
+    25%  { transform: translate(-10vw, 14vh) scale(1.15); border-radius: 40% 60% 58% 42% / 60% 40% 60% 40%; }
+    50%  { transform: translate(-16vw, -12vh) scale(0.85); border-radius: 60% 40% 35% 65% / 42% 58% 38% 62%; }
+    75%  { transform: translate(-6vw, -30vh) scale(1.1); border-radius: 38% 62% 55% 45% / 55% 45% 62% 38%; }
+    100% { transform: translate(4vw, -20vh) scale(0.95); border-radius: 50% 50% 45% 55% / 48% 52% 50% 50%; }
+  }
+  @keyframes drift3{
+    0%   { transform: translate(0,0) scale(1); border-radius: 48% 52% 55% 45% / 52% 48% 55% 45%; }
+    25%  { transform: translate(8vw, 12vh) scale(0.9); border-radius: 60% 40% 42% 58% / 40% 60% 45% 55%; }
+    50%  { transform: translate(15vw, -14vh) scale(1.18); border-radius: 40% 60% 60% 40% / 58% 42% 60% 40%; }
+    75%  { transform: translate(20vw, -32vh) scale(0.95); border-radius: 55% 45% 38% 62% / 45% 55% 40% 60%; }
+    100% { transform: translate(10vw, -18vh) scale(1.05); border-radius: 50% 50% 48% 52% / 50% 50% 52% 48%; }
+  }
+  @keyframes drift4{
+    0%   { transform: translate(0,0) scale(1); border-radius: 52% 48% 45% 55% / 48% 52% 50% 50%; }
+    25%  { transform: translate(-8vw, 16vh) scale(0.88); border-radius: 38% 62% 60% 40% / 60% 40% 55% 45%; }
+    50%  { transform: translate(-14vw, 34vh) scale(1.14); border-radius: 58% 42% 40% 60% / 42% 58% 38% 62%; }
+    75%  { transform: translate(-20vw, 14vh) scale(0.92); border-radius: 45% 55% 55% 45% / 55% 45% 60% 40%; }
+    100% { transform: translate(-10vw, 6vh) scale(1.08); border-radius: 50% 50% 50% 50% / 50% 50% 48% 52%; }
+  }
+  @keyframes drift5{
+    0%   { transform: translate(0,0) scale(1); border-radius: 50% 50% 58% 42% / 55% 45% 50% 50%; }
+    25%  { transform: translate(7vw, -18vh) scale(1.16); border-radius: 60% 40% 42% 58% / 40% 60% 45% 55%; }
+    50%  { transform: translate(11vw, -36vh) scale(0.9); border-radius: 42% 58% 60% 40% / 58% 42% 55% 45%; }
+    75%  { transform: translate(-5vw, -22vh) scale(1.1); border-radius: 55% 45% 45% 55% / 45% 55% 40% 60%; }
+    100% { transform: translate(-9vw, -10vh) scale(0.95); border-radius: 50% 50% 50% 50% / 50% 50% 50% 50%; }
+  }
+
+  .wrap{
+    position: relative;
+    z-index: 1;
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 28px 18px 80px;
+  }
+
+  /* ---------- Header ---------- */
+  header{
+    text-align:center;
+    padding: 18px 0 28px;
+    border-bottom: 1px solid var(--line);
+    margin-bottom: 28px;
+    position: relative;
+  }
+  .eyebrow{
+    font-size: 0.75rem;
+    color: var(--gold-dim);
+    letter-spacing: 0.3em;
+    margin-bottom: 14px;
+    font-family: 'JetBrains Mono', monospace;
+    text-transform: uppercase;
+  }
+  h1{
+    font-family: 'Fraunces', serif;
+    font-weight: 900;
+    font-size: clamp(2.2rem, 7vw, 3.2rem);
+    margin: 0;
+    letter-spacing: 0.01em;
+  }
+  h1 .accent{ color: var(--red-bright); font-style: italic; }
+  .tagline{
+    font-size: 0.92rem;
+    color: rgba(237,237,234,0.55);
+    margin-top: 8px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* ---------- Section shells ---------- */
+  section{ margin-bottom: 34px; }
+  .section-head{
+    display:flex;
+    flex-direction: column;
+    align-items:center;
+    justify-content:center;
+    margin-bottom: 18px;
+    text-align: center;
+  }
+  .section-head h2{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size: 1.35rem;
+    margin:0;
+    letter-spacing: 0.01em;
+  }
+  .section-head .underline{
+    width: 46px;
+    height: 2px;
+    background: var(--red-bright);
+    margin-top: 10px;
+    border-radius: 2px;
+  }
+  .hint{
+    font-size: 0.8rem;
+    color: rgba(237,237,234,0.45);
+    font-family:'JetBrains Mono',monospace;
+  }
+
+  /* ---------- Cards ---------- */
+  .card{
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 18px;
+  }
+
+  /* ---------- Players (chips) ---------- */
+  .players{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+  }
+  .chip{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    background: var(--bg);
+    border:1px solid var(--line);
+    border-radius: 999px;
+    padding: 7px 8px 7px 14px;
+    font-size: 0.92rem;
+  }
+  .chip .dot{
+    width:10px; height:10px; border-radius:50%;
+    flex-shrink:0;
+  }
+  .chip button{
+    background:none;
+    border:none;
+    color: rgba(237,237,234,0.4);
+    cursor:pointer;
+    font-size: 1rem;
+    line-height:1;
+    padding: 2px 4px;
+    border-radius: 50%;
+    transition: color .15s, background .15s;
+  }
+  .chip button:hover{ color: var(--red-bright); background: rgba(192,57,43,0.15); }
+
+  .add-player{
+    display:flex;
+    gap:8px;
+    margin-top: 12px;
+  }
+
+  input, select{
+    background: var(--bg);
+    border: 1px solid var(--line);
+    color: var(--cream);
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.95rem;
+    outline:none;
+  }
+  input:focus, select:focus{ border-color: var(--red); }
+  input::placeholder{ color: rgba(237,237,234,0.3); }
+
+  .btn{
+    background: var(--red);
+    color: var(--cream);
+    border:none;
+    border-radius: 8px;
+    padding: 10px 18px;
+    font-family:'DM Sans',sans-serif;
+    font-weight: 700;
+    font-size: 0.92rem;
+    cursor:pointer;
+    transition: filter .15s, transform .1s;
+    white-space:nowrap;
+  }
+  .btn:hover{ filter: brightness(1.08); }
+  .btn:active{ transform: scale(0.98); }
+  .btn.ghost{
+    background:transparent;
+    color: var(--cream);
+    border:1px solid var(--line);
+    font-weight:500;
+  }
+  .btn.ghost:hover{ border-color: var(--gold-dim); }
+  .btn.small{ padding: 6px 12px; font-size: 0.8rem; }
+  .btn:disabled{ opacity:0.4; cursor:not-allowed; }
+
+  /* ---------- Add debt form ---------- */
+  .form-grid{
+    display:grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 10px;
+    align-items:center;
+  }
+  .form-grid .arrow{
+    text-align:center;
+    color: var(--gold-dim);
+    font-size: 1.2rem;
+    font-family:'Fraunces',serif;
+  }
+  .form-row2{
+    display:grid;
+    grid-template-columns: 110px 1fr;
+    gap: 10px;
+    margin-top: 10px;
+  }
+  .form-row2 input[type="number"]{
+    font-family:'JetBrains Mono', monospace;
+    font-weight:600;
+  }
+  .submit-row{
+    margin-top: 14px;
+    display:flex;
+    justify-content:flex-end;
+  }
+  @media (max-width: 480px){
+    .form-grid{ grid-template-columns: 1fr; }
+    .form-grid .arrow{ transform: rotate(90deg); }
+    .form-row2{ grid-template-columns: 1fr; }
+  }
+
+  /* ---------- Balances ---------- */
+  .balance-item{
+    border-bottom: 1px solid var(--line);
+  }
+  .balance-item:last-child{ border-bottom:none; }
+  .balance-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding: 14px 2px;
+    gap: 10px;
+    cursor: pointer;
+    user-select: none;
+    transition: background .15s;
+    border-radius: 8px;
+  }
+  .balance-row:hover{ background: rgba(237,237,234,0.03); }
+  .balance-name{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    font-weight:600;
+    font-size: 1rem;
+  }
+  .chevron{
+    color: rgba(237,237,234,0.35);
+    font-size: 0.7rem;
+    transition: transform .35s cubic-bezier(.4,0,.2,1);
+    display:inline-block;
+  }
+  .balance-item.open .chevron{ transform: rotate(90deg); color: var(--gold-dim); }
+  .balance-right{
+    display:flex;
+    align-items:center;
+    gap: 12px;
+  }
+  .balance-amt{
+    font-family:'JetBrains Mono', monospace;
+    font-weight:700;
+    font-size: 1.05rem;
+    text-align:right;
+  }
+  .balance-amt.owes{ color: var(--red-bright); }
+  .balance-amt.owed{ color: var(--green); }
+  .balance-amt.even{ color: rgba(237,237,234,0.35); }
+
+  /* waterfall detail panel */
+  .balance-detail-wrap{
+    display:grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows .45s cubic-bezier(.4,0,.2,1);
+  }
+  .balance-item.open .balance-detail-wrap{ grid-template-rows: 1fr; }
+  .balance-detail-inner{
+    overflow: hidden;
+    min-height: 0;
+  }
+  .balance-detail-content{
+    padding: 4px 2px 16px 2px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+  }
+  @media (max-width: 480px){
+    .balance-detail-content{ grid-template-columns: 1fr; gap: 14px; }
+  }
+  .detail-col-title{
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: rgba(237,237,234,0.4);
+    font-family: 'JetBrains Mono', monospace;
+    margin-bottom: 8px;
+  }
+  .detail-item{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap: 8px;
+    padding: 6px 0;
+    font-size: 0.9rem;
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: opacity .4s ease, transform .4s ease;
+  }
+  .balance-item.open .detail-item{
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .detail-item .detail-amt{
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 0.88rem;
+    flex-shrink: 0;
+  }
+  .detail-empty{
+    font-size: 0.85rem;
+    color: rgba(237,237,234,0.35);
+    font-style: italic;
+    font-family: 'Fraunces', serif;
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: opacity .4s ease, transform .4s ease;
+  }
+  .balance-item.open .detail-empty{
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* ---------- History ---------- */
+  .filters{
+    display:flex;
+    gap:8px;
+    margin-bottom: 14px;
+    flex-wrap:wrap;
+  }
+  .filters select{ flex:1; min-width:120px; }
+
+  .entry{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap: 12px;
+    padding: 13px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .entry:last-child{ border-bottom:none; }
+  .entry.paid{ opacity: 0.45; }
+  .entry-main{ flex:1; min-width:0; }
+  .entry-route{
+    font-weight:600;
+    font-size: 0.96rem;
+  }
+  .entry-route .arrow-sm{ color: var(--red-bright); margin: 0 4px; }
+  .entry-route .for-suffix{
+    font-weight:400;
+    color: rgba(237,237,234,0.5);
+    font-size:0.85rem;
+  }
+  .entry-meta{
+    font-size: 0.78rem;
+    color: rgba(237,237,234,0.4);
+    font-family:'JetBrains Mono', monospace;
+    margin-top: 3px;
+  }
+  .entry-side{
+    text-align:right;
+    flex-shrink:0;
+    display:flex;
+    flex-direction:column;
+    align-items:flex-end;
+    gap:6px;
+  }
+  .entry-amt{
+    font-family:'JetBrains Mono', monospace;
+    font-weight:700;
+    font-size: 1.05rem;
+  }
+  .badge{
+    font-size: 0.68rem;
+    font-family:'JetBrains Mono', monospace;
+    text-transform:uppercase;
+    letter-spacing: 0.08em;
+    padding: 3px 8px;
+    border-radius:999px;
+    border:1px solid var(--line);
+    color: rgba(237,237,234,0.55);
+    cursor:pointer;
+    background:none;
+    transition: all .15s;
+  }
+  .badge:hover{ border-color: var(--red); color: var(--red-bright); }
+  .badge.is-paid{ border-color: rgba(237,237,234,0.3); color: rgba(237,237,234,0.6); }
+
+  .empty{
+    text-align:center;
+    color: rgba(237,237,234,0.35);
+    font-size: 0.9rem;
+    padding: 28px 10px;
+    font-style: italic;
+    font-family:'Fraunces', serif;
+  }
+
+  footer{
+    text-align:center;
+    margin-top: 40px;
+    font-size: 0.75rem;
+    color: rgba(237,237,234,0.25);
+    font-family:'JetBrains Mono', monospace;
+  }
+</style>
+</head>
+<body>
+<div class="bg-blobs">
+  <div class="blob blob1"></div>
+  <div class="blob blob2"></div>
+  <div class="blob blob3"></div>
+  <div class="blob blob4"></div>
+  <div class="blob blob5"></div>
+</div>
+<div class="wrap">
+
+  <header>
+    <h1>Tablero de <span class="accent">Deudas</span></h1>
+    <div class="tagline">quién le debe a quién, y cuánto</div>
+  </header>
+
+  <section>
+    <div class="section-head">
+      <h2>Deudores</h2>
+      <div class="underline"></div>
+    </div>
+    <div class="card">
+      <div class="players" id="players-list"></div>
+      <div class="add-player">
+        <input type="text" id="new-player-name" maxlength="24">
+        <button class="btn" id="add-player-btn">→</button>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <h2>Modificar deuda</h2>
+      <div class="underline"></div>
+    </div>
+    <div class="card">
+      <div class="form-grid">
+        <select id="debt-from"></select>
+        <span class="arrow">→</span>
+        <select id="debt-to"></select>
+      </div>
+      <div class="form-row2">
+        <input type="number" id="debt-amount" placeholder="Cantidad" min="0" step="1" inputmode="numeric">
+        <input type="text" id="debt-note" placeholder="Motivo" maxlength="60">
+      </div>
+      <div class="submit-row">
+        <button class="btn" id="add-debt-btn">✓</button>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <h2>Tablero de deudas</h2>
+      <div class="underline"></div>
+    </div>
+    <div class="card" id="balances-list"></div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <h2>Historial de Pagos</h2>
+      <div class="underline"></div>
+    </div>
+    <div class="filters">
+      <select id="filter-player">
+        <option value="">Todos</option>
+      </select>
+      <select id="filter-status">
+        <option value="all">Todo</option>
+        <option value="open">Pendiente</option>
+        <option value="paid">Pagado</option>
+      </select>
+    </div>
+    <div class="card" id="history-list"></div>
+  </section>
+
+  <footer>los datos se comparten entre todos los que usan este tablero</footer>
+</div>
+
+<script>
+const STORAGE_KEY = 'poker-tab-data';
+const COLORS = ['#d9a536','#b8453a','#5c8a72','#7a8fc9','#c98fb1','#d4915a','#8fbcd4','#a9a05a'];
+
+let state = { players: [], debts: [] };
+let saveTimeout = null;
+
+function colorFor(id){
+  const idx = Math.abs(hashStr(id)) % COLORS.length;
+  return COLORS[idx];
+}
+function hashStr(s){
+  let h = 0;
+  for(let i=0;i<s.length;i++){ h = (h<<5) - h + s.charCodeAt(i); h |= 0; }
+  return h;
+}
+function uid(){ return Math.random().toString(36).slice(2,10) + Date.now().toString(36); }
+function fmt(n){
+  return Math.round(n).toLocaleString('en-US');
+}
+function nameOf(id){
+  const p = state.players.find(p=>p.id===id);
+  return p ? p.name : '???';
+}
+
+async function load(){
+  try{
+    const res = await window.storage.get(STORAGE_KEY, true);
+    if(res && res.value){
+      const parsed = JSON.parse(res.value);
+      state.players = Array.isArray(parsed.players) ? parsed.players : [];
+      state.debts = Array.isArray(parsed.debts) ? parsed.debts : [];
+    }
+  }catch(e){
+    // no data yet, or storage error -- start fresh
+    state = { players: [], debts: [] };
+  }
+  if(state.players.length === 0){
+    // seed example data so the UI isn't empty on first load
+    state.players = [];
+  }
+  renderAll();
+}
+
+async function save(){
+  clearTimeout(saveTimeout);
+  saveTimeout = setTimeout(async ()=>{
+    try{
+      await window.storage.set(STORAGE_KEY, JSON.stringify(state), true);
+    }catch(e){
+      console.error('save failed', e);
+    }
+  }, 150);
+}
+
+/* ---------------- Rendering ---------------- */
+
+function renderAll(){
+  renderPlayers();
+  renderSelects();
+  renderBalances();
+  renderHistory();
+}
+
+function renderPlayers(){
+  const list = document.getElementById('players-list');
+  list.innerHTML = '';
+
+  if(state.players.length === 0){
+    return;
+  }
+
+  state.players.forEach(p=>{
+    const chip = document.createElement('div');
+    chip.className = 'chip';
+    const dot = document.createElement('span');
+    dot.className = 'dot';
+    dot.style.background = colorFor(p.id);
+    const name = document.createElement('span');
+    name.textContent = p.name;
+    const del = document.createElement('button');
+    del.textContent = '✕';
+    del.title = 'Eliminar';
+    del.onclick = ()=> removePlayer(p.id);
+    chip.appendChild(dot);
+    chip.appendChild(name);
+    chip.appendChild(del);
+    list.appendChild(chip);
+  });
+}
+
+function renderSelects(){
+  const fromSel = document.getElementById('debt-from');
+  const toSel = document.getElementById('debt-to');
+  const filterSel = document.getElementById('filter-player');
+
+  const prevFrom = fromSel.value, prevTo = toSel.value, prevFilter = filterSel.value;
+
+  [fromSel, toSel].forEach(sel=> sel.innerHTML = '');
+  filterSel.innerHTML = '<option value="">Todos</option>';
+
+  if(state.players.length === 0){
+    const opt = document.createElement('option');
+    opt.textContent = '¿Quién?';
+    opt.value = '';
+    fromSel.appendChild(opt.cloneNode(true));
+    toSel.appendChild(opt);
+    document.getElementById('add-debt-btn').disabled = true;
+    return;
+  }
+  document.getElementById('add-debt-btn').disabled = false;
+
+  state.players.forEach(p=>{
+    const o1 = document.createElement('option');
+    o1.value = p.id; o1.textContent = p.name;
+    fromSel.appendChild(o1);
+
+    const o2 = document.createElement('option');
+    o2.value = p.id; o2.textContent = p.name;
+    toSel.appendChild(o2);
+
+    const o3 = document.createElement('option');
+    o3.value = p.id; o3.textContent = p.name;
+    filterSel.appendChild(o3);
+  });
+
+  // restore selections if still valid
+  if(state.players.find(p=>p.id===prevFrom)) fromSel.value = prevFrom;
+  if(state.players.find(p=>p.id===prevTo)) toSel.value = prevTo;
+  if(state.players.find(p=>p.id===prevFilter)) filterSel.value = prevFilter;
+
+  // make sure from/to differ by default
+  if(fromSel.value === toSel.value && state.players.length > 1){
+    toSel.selectedIndex = (fromSel.selectedIndex + 1) % state.players.length;
+  }
+}
+
+function computeBalances(){
+  // net[a][b] = how much a owes b (can be negative)
+  const net = {};
+  state.players.forEach(p=> net[p.id] = {});
+
+  state.debts.forEach(d=>{
+    if(d.paid) return;
+    if(!net[d.from]) net[d.from] = {};
+    if(!net[d.from][d.to]) net[d.from][d.to] = 0;
+    net[d.from][d.to] += d.amount;
+  });
+
+  // simplify pairwise (a owes b X, b owes a Y -> net)
+  const pairs = {};
+  state.players.forEach(a=>{
+    state.players.forEach(b=>{
+      if(a.id >= b.id) return;
+      const aOwesB = (net[a.id] && net[a.id][b.id]) || 0;
+      const bOwesA = (net[b.id] && net[b.id][a.id]) || 0;
+      const diff = aOwesB - bOwesA;
+      if(Math.abs(diff) > 0.001){
+        if(diff > 0) pairs[a.id+'|'+b.id] = {from:a.id, to:b.id, amount:diff};
+        else pairs[a.id+'|'+b.id] = {from:b.id, to:a.id, amount:-diff};
+      }
+    });
+  });
+
+  // totals per player
+  const totals = {};
+  state.players.forEach(p=> totals[p.id] = { owes:0, owed:0, detail:[] });
+  Object.values(pairs).forEach(pair=>{
+    totals[pair.from].owes += pair.amount;
+    totals[pair.from].detail.push({to: pair.to, amount: pair.amount, dir:'owes'});
+    totals[pair.to].owed += pair.amount;
+    totals[pair.to].detail.push({to: pair.from, amount: pair.amount, dir:'owed'});
+  });
+  return totals;
+}
+
+let expandedPlayerId = null;
+
+function renderBalances(){
+  const el = document.getElementById('balances-list');
+  el.innerHTML = '';
+
+  if(state.players.length === 0){
+    return;
+  }
+
+  const totals = computeBalances();
+  let anyDebt = false;
+
+  state.players.forEach(p=>{
+    const t = totals[p.id];
+    const net = t.owed - t.owes;
+    if(Math.abs(net) > 0.001 || t.detail.length) anyDebt = true;
+
+    const item = document.createElement('div');
+    item.className = 'balance-item';
+    if(expandedPlayerId === p.id) item.classList.add('open');
+
+    // --- header row ---
+    const row = document.createElement('div');
+    row.className = 'balance-row';
+
+    const nameLine = document.createElement('div');
+    nameLine.className = 'balance-name';
+    const dot = document.createElement('span');
+    dot.className = 'dot';
+    dot.style.display='inline-block';
+    dot.style.width='10px'; dot.style.height='10px'; dot.style.borderRadius='50%';
+    dot.style.background = colorFor(p.id);
+    const chev = document.createElement('span');
+    chev.className = 'chevron';
+    chev.textContent = '▸';
+    nameLine.appendChild(chev);
+    nameLine.appendChild(dot);
+    const nm = document.createElement('span');
+    nm.textContent = p.name;
+    nameLine.appendChild(nm);
+
+    const right = document.createElement('div');
+    right.className = 'balance-right';
+    const amt = document.createElement('div');
+    amt.className = 'balance-amt';
+    if(net > 0.001){
+      amt.textContent = `+$${fmt(net)}`;
+      amt.classList.add('owed');
+    } else if(net < -0.001){
+      amt.textContent = `-$${fmt(Math.abs(net))}`;
+      amt.classList.add('owes');
+    } else {
+      amt.textContent = '—';
+      amt.classList.add('even');
+    }
+    right.appendChild(amt);
+
+    row.appendChild(nameLine);
+    row.appendChild(right);
+    row.onclick = ()=>{
+      const willOpen = expandedPlayerId !== p.id;
+      if(expandedPlayerId && expandedPlayerId !== p.id){
+        const prevItem = el.querySelector('.balance-item.open');
+        if(prevItem) prevItem.classList.remove('open');
+      }
+      if(willOpen){
+        expandedPlayerId = p.id;
+        item.classList.add('open');
+      } else {
+        expandedPlayerId = null;
+        item.classList.remove('open');
+      }
+    };
+
+    // --- detail panel (waterfall) ---
+    const owedToThem = t.detail.filter(d=> d.dir === 'owed'); // others owe p
+    const theyOwe = t.detail.filter(d=> d.dir === 'owes');    // p owes others
+
+    const wrap = document.createElement('div');
+    wrap.className = 'balance-detail-wrap';
+    const inner = document.createElement('div');
+    inner.className = 'balance-detail-inner';
+    const content = document.createElement('div');
+    content.className = 'balance-detail-content';
+
+    let delayIndex = 0;
+
+    const colTeDeben = document.createElement('div');
+    const titleTeDeben = document.createElement('div');
+    titleTeDeben.className = 'detail-col-title';
+    titleTeDeben.textContent = 'Le deben';
+    colTeDeben.appendChild(titleTeDeben);
+    if(owedToThem.length){
+      owedToThem.forEach(d=>{
+        const di = document.createElement('div');
+        di.className = 'detail-item';
+        di.style.transitionDelay = (delayIndex * 0.06) + 's';
+        delayIndex++;
+        const name = document.createElement('span');
+        name.textContent = nameOf(d.to);
+        const a = document.createElement('span');
+        a.className = 'detail-amt';
+        a.style.color = 'var(--green)';
+        a.textContent = '+$' + fmt(d.amount);
+        di.appendChild(name);
+        di.appendChild(a);
+        colTeDeben.appendChild(di);
+      });
+    } else {
+      const empty = document.createElement('div');
+      empty.className = 'detail-empty';
+      empty.style.transitionDelay = (delayIndex * 0.06) + 's';
+      delayIndex++;
+      empty.textContent = 'Nadie le debe';
+      colTeDeben.appendChild(empty);
+    }
+
+    const colDebeA = document.createElement('div');
+    const titleDebeA = document.createElement('div');
+    titleDebeA.className = 'detail-col-title';
+    titleDebeA.textContent = 'Debe a';
+    colDebeA.appendChild(titleDebeA);
+    if(theyOwe.length){
+      theyOwe.forEach(d=>{
+        const di = document.createElement('div');
+        di.className = 'detail-item';
+        di.style.transitionDelay = (delayIndex * 0.06) + 's';
+        delayIndex++;
+        const name = document.createElement('span');
+        name.textContent = nameOf(d.to);
+        const a = document.createElement('span');
+        a.className = 'detail-amt';
+        a.style.color = 'var(--red-bright)';
+        a.textContent = '-$' + fmt(d.amount);
+        di.appendChild(name);
+        di.appendChild(a);
+        colDebeA.appendChild(di);
+      });
+    } else {
+      const empty = document.createElement('div');
+      empty.className = 'detail-empty';
+      empty.style.transitionDelay = (delayIndex * 0.06) + 's';
+      delayIndex++;
+      empty.textContent = 'No le debe a nadie';
+      colDebeA.appendChild(empty);
+    }
+
+    content.appendChild(colTeDeben);
+    content.appendChild(colDebeA);
+    inner.appendChild(content);
+    wrap.appendChild(inner);
+
+    item.appendChild(row);
+    item.appendChild(wrap);
+    el.appendChild(item);
+  });
+
+  if(!anyDebt){
+    return;
+  }
+}
+
+function renderHistory(){
+  const el = document.getElementById('history-list');
+  el.innerHTML = '';
+
+  const filterPlayer = document.getElementById('filter-player').value;
+  const filterStatus = document.getElementById('filter-status').value;
+
+  let entries = [...state.debts].sort((a,b)=> b.createdAt - a.createdAt);
+
+  if(filterPlayer){
+    entries = entries.filter(d=> d.from === filterPlayer || d.to === filterPlayer);
+  }
+  if(filterStatus === 'open'){
+    entries = entries.filter(d=> !d.paid);
+  } else if(filterStatus === 'paid'){
+    entries = entries.filter(d=> d.paid);
+  }
+
+  if(entries.length === 0){
+    return;
+  }
+
+  entries.forEach(d=>{
+    const row = document.createElement('div');
+    row.className = 'entry' + (d.paid ? ' paid' : '');
+
+    const main = document.createElement('div');
+    main.className = 'entry-main';
+
+    const route = document.createElement('div');
+    route.className = 'entry-route';
+    route.innerHTML = `${escapeHtml(nameOf(d.from))} <span class="arrow-sm">→</span> ${escapeHtml(nameOf(d.to))}` +
+      (d.note ? ` <span class="for-suffix">— ${escapeHtml(d.note)}</span>` : '');
+    main.appendChild(route);
+
+    const meta = document.createElement('div');
+    meta.className = 'entry-meta';
+    const date = new Date(d.createdAt);
+    meta.textContent = date.toLocaleDateString('es-ES', {month:'short', day:'numeric', year:'numeric'});
+    main.appendChild(meta);
+
+    const side = document.createElement('div');
+    side.className = 'entry-side';
+    const amt = document.createElement('div');
+    amt.className = 'entry-amt';
+    amt.textContent = '$' + fmt(d.amount);
+    side.appendChild(amt);
+
+    const badge = document.createElement('button');
+    badge.className = 'badge' + (d.paid ? ' is-paid' : '');
+    badge.textContent = d.paid ? '✓' : 'marcar pagado';
+    badge.onclick = ()=> togglePaid(d.id);
+    side.appendChild(badge);
+
+    row.appendChild(main);
+    row.appendChild(side);
+    el.appendChild(row);
+  });
+}
+
+function escapeHtml(s){
+  const div = document.createElement('div');
+  div.textContent = s;
+  return div.innerHTML;
+}
+
+/* ---------------- Actions ---------------- */
+
+function addPlayer(){
+  const input = document.getElementById('new-player-name');
+  const name = input.value.trim();
+  if(!name) return;
+  if(state.players.some(p=> p.name.toLowerCase() === name.toLowerCase())){
+    input.value='';
+    input.placeholder = 'Ya existe';
+    return;
+  }
+  state.players.push({ id: uid(), name });
+  input.value = '';
+  save();
+  renderAll();
+}
+
+function removePlayer(id){
+  const involved = state.debts.some(d=> d.from===id || d.to===id);
+  if(involved){
+    if(!confirm(`${nameOf(id)} tiene deudas registradas. ¿Eliminar de todos modos?`)) return;
+    state.debts = state.debts.filter(d=> d.from!==id && d.to!==id);
+  }
+  state.players = state.players.filter(p=> p.id!==id);
+  save();
+  renderAll();
+}
+
+function addDebt(){
+  const from = document.getElementById('debt-from').value;
+  const to = document.getElementById('debt-to').value;
+  const amountInput = document.getElementById('debt-amount');
+  const amount = Math.round(parseFloat(amountInput.value));
+  const note = document.getElementById('debt-note').value.trim();
+
+  if(!from || !to){ return; }
+  if(from === to){ alert("Elige dos personas distintas."); return; }
+  if(!amount || amount <= 0){ amountInput.focus(); return; }
+
+  state.debts.push({
+    id: uid(),
+    from, to,
+    amount,
+    note,
+    paid: false,
+    createdAt: Date.now()
+  });
+
+  amountInput.value = '';
+  document.getElementById('debt-note').value = '';
+  save();
+  renderAll();
+}
+
+function togglePaid(id){
+  const d = state.debts.find(d=>d.id===id);
+  if(!d) return;
+  d.paid = !d.paid;
+  save();
+  renderBalances();
+  renderHistory();
+}
+
+/* ---------------- Init ---------------- */
+
+document.getElementById('add-player-btn').onclick = addPlayer;
+document.getElementById('new-player-name').addEventListener('keydown', e=>{
+  if(e.key === 'Enter') addPlayer();
+});
+document.getElementById('add-debt-btn').onclick = addDebt;
+document.getElementById('debt-amount').addEventListener('keydown', e=>{
+  if(e.key === 'Enter') addDebt();
+});
+document.getElementById('filter-player').addEventListener('change', renderHistory);
+document.getElementById('filter-status').addEventListener('change', renderHistory);
+
+load();
+</script>
+</body>
+</html>
